@@ -1,0 +1,46 @@
+## Ignore build results
+[Bb]in/
+[Oo]bj/
+
+## Ignore Rider project files
+.idea/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Mono Auto Generated Files
+mono_crash.*
+
+## Visual Studio Code
+.vscode/
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+*.psmdcp
+*.ps1
+.nuget/
+packages/
+**/packages/*
+
+# Exclude files built by Visual Studio
+*.dll
+*.exe
+*.app
+*.log
+
+# Logs
+*.log
+logs/
