@@ -4,7 +4,7 @@
 // Contagem de maquinas Lascadas: 2. disco fisico do boot: \\.\PhysicalDrive0
 // Console.WriteLine($"Disco 0: {info1.Path}");
 
-var info = DiskReader.GetDiskGeometryInfo(@"\\.\E:");
+var info = DiskReader.GetDiskGeometryInfo(@"\\.\F:");
 Console.WriteLine($"Disco: {info.Path}");
 Console.WriteLine($"Setor Lógico (mínimo): {info.LogicalSectorSize} bytes");
 Console.WriteLine($"Setor Físico (máximo): {info.PhysicalSectorSize} bytes");
