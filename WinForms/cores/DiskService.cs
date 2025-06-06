@@ -129,5 +129,25 @@
 
             return setores;
         }
+
+        /// <summary>
+        /// Retorna o número máximo de setores do disco físico.
+        /// </summary>
+        /// <param name="diskPath">Caminho do disco físico (ex: "\\\\.\\PhysicalDrive0").</param>
+        /// <param name="usarSetorFisico">Se true, usa o tamanho do setor físico; caso contrário, usa o lógico.</param>
+        /// <returns>Número total de setores do disco.</returns>
+        public long GetMaxSetores(string diskPath, bool usarSetorFisico = false)
+        {
+            var (path, logicalSectorSize, physicalSectorSize) = DiskReader.GetDiskGeometryInfo(diskPath);
+
+            using var stream = DiskReader.OpenPhysicalDisk(diskPath);
+            long tamanhoDisco = stream.Length;
+            uint setorSize = usarSetorFisico ? physicalSectorSize : logicalSectorSize;
+
+            if (setorSize == 0)
+                throw new InvalidOperationException("Tamanho do setor inválido.");
+
+            return tamanhoDisco / setorSize;
+        }
     }
 }

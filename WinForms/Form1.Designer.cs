@@ -13,6 +13,8 @@
         private System.Windows.Forms.RadioButton radioButtonRandomico;
         private System.Windows.Forms.RadioButton radioButtonSequencial;
         private System.Windows.Forms.TextBox txtSaida;
+        private System.Windows.Forms.Label lblSetoresProcessados;
+        private System.Windows.Forms.CheckBox chkOcultarLeitura;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -43,6 +45,8 @@
             this.radioButtonRandomico = new System.Windows.Forms.RadioButton();
             this.radioButtonSequencial = new System.Windows.Forms.RadioButton();
             this.txtSaida = new System.Windows.Forms.TextBox();
+            this.lblSetoresProcessados = new System.Windows.Forms.Label();
+            this.chkOcultarLeitura = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtDiskPath
@@ -98,6 +102,24 @@
             this.txtSaida.Location = new System.Drawing.Point(20, 120); // ajuste conforme necessário
             this.txtSaida.Size = new System.Drawing.Size(500, 200); // ajuste conforme necessário
             this.txtSaida.Name = "txtSaida";
+         
+
+            // CheckBox para ocultar a leitura dos setores
+            this.chkOcultarLeitura = new System.Windows.Forms.CheckBox();
+            this.chkOcultarLeitura.AutoSize = true;
+            this.chkOcultarLeitura.Location = new System.Drawing.Point(20, 370); // ajuste conforme necessário
+            this.chkOcultarLeitura.Name = "chkOcultarLeitura";
+            this.chkOcultarLeitura.Size = new System.Drawing.Size(220, 19);
+            this.chkOcultarLeitura.Text = "Não mostrar a leitura dos setores";
+            this.Controls.Add(this.chkOcultarLeitura);
+            // 
+            // lblSetoresProcessados
+            // 
+            this.lblSetoresProcessados.AutoSize = true;
+            this.lblSetoresProcessados.Location = new System.Drawing.Point(20, 340); // ajuste conforme necessário
+            this.lblSetoresProcessados.Name = "lblSetoresProcessados";
+            this.lblSetoresProcessados.Size = new System.Drawing.Size(180, 15);
+            this.lblSetoresProcessados.Text = "Setores processados: 0";
             // 
             // Form1
             // 
@@ -111,6 +133,7 @@
             this.Controls.Add(this.radioButtonRandomico);
             this.Controls.Add(this.radioButtonSequencial);
             this.Controls.Add(this.txtSaida);
+            this.Controls.Add(this.lblSetoresProcessados);
             this.Name = "Form1";
             this.Text = "Informações do Disco";
             this.ResumeLayout(false);

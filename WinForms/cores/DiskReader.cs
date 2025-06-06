@@ -62,6 +62,14 @@ namespace Core
             return new FileStream(handle, FileAccess.Read);
         }
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetDiskFreeSpaceExW(
+          string lpDirectoryName,
+          out ulong lpFreeBytesAvailable,
+          out ulong lpTotalNumberOfBytes,
+          out ulong lpTotalNumberOfFreeBytes);
+
         /// <summary>
         /// Obtém informações de geometria do disco físico especificado.
         /// Utiliza chamadas de baixo nível da API do Windows para consultar o tamanho dos setores lógicos e físicos do disco.
