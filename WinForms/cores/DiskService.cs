@@ -41,7 +41,7 @@
         /// <param name="indices">Lista de índices de setores a serem lidos.</param>
         /// <returns>Lista de arrays de bytes, cada um representando um setor lido aleatoriamente.</returns>
         /// <exception cref="IOException">Lançada se houver erro na leitura do disco.</exception>
-        public async Task<List<byte[]>> GetSetoresRandomizadosAsync(string diskPath, IEnumerable<long> indices)
+        public async Task<List<byte[]>> GetSetoresRandomizadosAsync(string diskPath, long qtdMaxSetores, int rodaMaxima = 1000)
         {
             var (path, logicalSectorSize, _) = DiskReader.GetDiskGeometryInfo(diskPath);
             var setores = new List<byte[]>();
@@ -49,10 +49,11 @@
             using var stream = DiskReader.OpenPhysicalDisk(diskPath);
             var buffer = new byte[logicalSectorSize];
 
-            foreach (var indice in indices)
+            var random = new Random();
+
+            for (int i = 0; i < rodaMaxima; i ++)
             {
-                if (indice < 0) continue;
-                long offset = indice * logicalSectorSize;
+                long offset = LongRandom(0, qtdMaxSetores, random) * logicalSectorSize;
                 stream.Seek(offset, SeekOrigin.Begin);
 
                 int lidos = await stream.ReadAsync(buffer, 0, buffer.Length);
@@ -64,6 +65,14 @@
             }
 
             return setores;
+        }
+
+        private long LongRandom(long min, long max, Random rand)
+        {
+            long result = rand.Next((Int32)(min >> 32), (Int32)(max >> 32));
+            result = (result << 32);
+            result = result | (long)rand.Next((Int32)min, (Int32)max);
+            return result;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 using Core;
+using System.Text.RegularExpressions;
 
 namespace WinForms
 {
@@ -50,35 +51,28 @@ namespace WinForms
             txtSaida.Clear();
             int totalSetores = 0;
             lblSetoresProcessados.Text = "Setores processados: 0";
-            var random = new Random();
-            var tamanhoMaximo = diskService.GetMaxSetores(diskPath);
 
-            var indices = new List<long>();
-            for (int i = 0; i < tamanhoMaximo; i++)
+            var qtdSetores = GetTotalSetores(diskPath);
+
+            for (int i = 0; i < qtdSetores; i++)
             {
-                indices.Add(LongRandom(0, tamanhoMaximo, random));
-            }
-
-            var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, indices);
-
-            for (int i = 0; i < setores.Count; i++)
-            {
+                var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, qtdSetores);
                 if (!chkOcultarLeitura.Checked)
                 {
-                    txtSaida.AppendText($"Setor aleatório {indices[i]}: {BitConverter.ToString(setores[i])}{Environment.NewLine}");
+                    txtSaida.AppendText($"Setor aleatório, rodada {i}: {BitConverter.ToString(setores.First())}{Environment.NewLine}");
                 }
                 totalSetores++;
                 lblSetoresProcessados.Text = $"Setores processados: {totalSetores}";
-                Application.DoEvents(); // Atualiza a interface
+                Application.DoEvents();
             }
         }
 
-        private long LongRandom(long min, long max, Random rand)
+
+        private long GetTotalSetores(String diskPath)
         {
-            long result = rand.Next((Int32)(min >> 32), (Int32)(max >> 32));
-            result = (result << 32);
-            result = result | (long)rand.Next((Int32)min, (Int32)max);
-            return result;
+            var drive = new DriveInfo(Regex.Replace(diskPath, "[^a-zA-Z]", ""));
+
+            return drive.TotalSize / 512;
         }
 
         private async Task LerSetoresPaginadoAsync(string diskPath)
