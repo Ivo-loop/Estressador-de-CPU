@@ -6,6 +6,13 @@ namespace Core
     internal class DiskReader
     {
 
+        // TODO: mudar somente para leitura fisica, ler como raw.
+        // link: https://www.disk-editor.org/index.html
+        // adicionar opção para destruir o disco, ou so ler o raw.
+        // criar um botão parar de executar o processo.
+        // descobrir bug de print para setores sequenciais
+
+
         // função da api do windows abrir/cria um arquivo virtual com o endereço do disco físico, e faz leitura da bits do disco físico
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern SafeFileHandle CreateFile(

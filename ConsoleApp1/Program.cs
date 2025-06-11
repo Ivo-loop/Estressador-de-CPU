@@ -2,7 +2,7 @@
 
 // WARNING: Este codigo é para uso educacioanl. Acesso fisico ao disk pode gerar perda de dados ou corrupção.
 // Contagem de maquinas Lascadas: 2. disco fisico do boot: \\.\PhysicalDrive0
-// Console.WriteLine($"Disco 0: {info1.Path}");
+// Estamos a {1} sem acidentes com maquinas.
 
 //var drive = @"\\.\F:";
 
