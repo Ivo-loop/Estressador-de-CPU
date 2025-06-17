@@ -1,11 +1,12 @@
 using Core;
 using System.Text.RegularExpressions;
+using WinForms.cores;
 
 namespace WinForms
 {
-    public partial class Form1 : Form
+    public partial class Principal : Form
     {
-        public Form1()
+        public Principal()
         {
             InitializeComponent();
 
@@ -107,6 +108,21 @@ namespace WinForms
                     }
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkOcultarLeitura_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

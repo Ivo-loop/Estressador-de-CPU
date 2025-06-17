@@ -1,4 +1,4 @@
-﻿namespace Core
+﻿namespace WinForms.cores
 {
     internal class DiskService
     {
@@ -69,9 +69,9 @@
 
         private long LongRandom(long min, long max, Random rand)
         {
-            long result = rand.Next((Int32)(min >> 32), (Int32)(max >> 32));
-            result = (result << 32);
-            result = result | (long)rand.Next((Int32)min, (Int32)max);
+            long result = rand.Next((int)(min >> 32), (int)(max >> 32));
+            result = result << 32;
+            result = result | (long)rand.Next((int)min, (int)max);
             return result;
         }
 

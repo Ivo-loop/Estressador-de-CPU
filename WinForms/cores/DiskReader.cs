@@ -1,17 +1,30 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 
-namespace Core
+namespace WinForms.cores
 {
     internal class DiskReader
     {
+        // --- Constantes para CreateFile ---
+        // Acesso de leitura ao dispositivo
+        private const uint GENERIC_READ = 0x80000000;
+        // Sem acesso de escrita (leitura segura)
+        private const uint GENERIC_WRITE = 0x40000000;
 
-        // TODO: mudar somente para leitura fisica, ler como raw.
+        // Compartilhamento, permite leitura, escrita e exclusão de outros processos
+        private const uint FILE_SHARE_READ = 0x00000001;
+        private const uint FILE_SHARE_WRITE = 0x00000002;
+        private const uint FILE_SHARE_DELETE = 0x00000004;
+
+        // Indica que o arquivo/dispositivo deve ser aberto apenas se já existir
+        public const uint OPEN_EXISTING = 3;
+
+        // Código de controle usado para consultar propriedades do armazenamento (ex: setores do disco)
+        public const uint IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400;
+
         // link: https://www.disk-editor.org/index.html
-        // adicionar opção para destruir o disco, ou so ler o raw.
         // criar um botão parar de executar o processo.
         // descobrir bug de print para setores sequenciais
-
 
         // função da api do windows abrir/cria um arquivo virtual com o endereço do disco físico, e faz leitura da bits do disco físico
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -19,49 +32,34 @@ namespace Core
             string lpFileName,
             uint dwDesiredAccess,
             uint dwShareMode,
-            IntPtr lpSecurityAttributes,
+            nint lpSecurityAttributes,
             uint dwCreationDisposition,
             uint dwFlagsAndAttributes,
-            IntPtr hTemplateFile);
+            nint hTemplateFile);
 
         // O método DeviceIoControl é uma função da API do Windows usada
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool DeviceIoControl(
             SafeFileHandle hDevice,
             uint dwIoControlCode,
-            IntPtr lpInBuffer,
+            nint lpInBuffer,
             int nInBufferSize,
-            IntPtr lpOutBuffer,
+            nint lpOutBuffer,
             int nOutBufferSize,
             out int lpBytesReturned,
-            IntPtr lpOverlapped);
-
-        // Permissão de acesso para leitura ao abrir o arquivo/dispositivo
-        public const uint GENERIC_READ = 0x80000000;
-
-        // Indica que o arquivo/dispositivo deve ser aberto apenas se já existir
-        public const uint OPEN_EXISTING = 3;
-
-        // Permite que outros processos também abram o arquivo/dispositivo para leitura
-        public const uint FILE_SHARE_READ = 0x00000001;
-
-        // Permite que outros processos também abram o arquivo/dispositivo para escrita
-        public const uint FILE_SHARE_WRITE = 0x00000002;
-
-        // Código de controle usado para consultar propriedades do armazenamento (ex: setores do disco)
-        public const uint IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400;
-
-        // faz leitura de um endereço fisico do disco. 
+            nint lpOverlapped);
+        
+        // Faz leitura de um endereço fisico do disco. 
         public static FileStream OpenPhysicalDisk(string path)
         {
             var handle = CreateFile(
                 path,
                 GENERIC_READ,
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-                IntPtr.Zero,
+                nint.Zero,
                 OPEN_EXISTING,
                 0,
-                IntPtr.Zero);
+                nint.Zero);
 
             if (handle.IsInvalid)
                 throw new IOException("Falha ao abrir o dispositivo físico.", Marshal.GetLastWin32Error());
@@ -77,32 +75,18 @@ namespace Core
           out ulong lpTotalNumberOfBytes,
           out ulong lpTotalNumberOfFreeBytes);
 
-        /// <summary>
         /// Obtém informações de geometria do disco físico especificado.
         /// Utiliza chamadas de baixo nível da API do Windows para consultar o tamanho dos setores lógicos e físicos do disco.
-        /// </summary>
-        /// <param name="path">
-        /// Caminho do dispositivo físico (exemplo: "\\\\.\\PhysicalDrive0").
-        /// </param>
-        /// <returns>
-        /// Uma tupla contendo:
-        /// - Path: caminho do dispositivo consultado;
-        /// - LogicalSectorSize: tamanho do setor lógico em bytes;
-        /// - PhysicalSectorSize: tamanho do setor físico em bytes.
-        /// </returns>
-        /// <exception cref="IOException">
-        /// Lançada se houver falha ao abrir o dispositivo físico ou ao obter as informações de alinhamento do disco.
-        /// </exception>
         public static (string Path, uint LogicalSectorSize, uint PhysicalSectorSize) GetDiskGeometryInfo(string path)
         {
             SafeFileHandle handle = CreateFile(
                 path,
                 GENERIC_READ,
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-                IntPtr.Zero,
+                nint.Zero,
                 OPEN_EXISTING,
                 0,
-                IntPtr.Zero);
+                nint.Zero);
 
             if (handle.IsInvalid)
                 throw new IOException("Falha ao abrir o dispositivo físico.", Marshal.GetLastWin32Error());
@@ -114,11 +98,11 @@ namespace Core
             };
 
             int querySize = Marshal.SizeOf(query);
-            IntPtr queryPtr = Marshal.AllocHGlobal(querySize);
+            nint queryPtr = Marshal.AllocHGlobal(querySize);
             Marshal.StructureToPtr(query, queryPtr, false);
 
             int outSize = Marshal.SizeOf<STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR>();
-            IntPtr outBuffer = Marshal.AllocHGlobal(outSize);
+            nint outBuffer = Marshal.AllocHGlobal(outSize);
 
             bool result = DeviceIoControl(
                 handle,
@@ -128,7 +112,7 @@ namespace Core
                 outBuffer,
                 outSize,
                 out int bytesReturned,
-                IntPtr.Zero);
+                nint.Zero);
 
             if (!result)
                 throw new IOException("Falha ao obter informações de alinhamento do disco.", Marshal.GetLastWin32Error());
