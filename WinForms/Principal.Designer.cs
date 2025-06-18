@@ -8,13 +8,16 @@ namespace WinForms
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.TextBox txtDiskPath;
+        private System.Windows.Forms.ComboBox comboDiskPath;
         private System.Windows.Forms.Button btnReadInfo;
         private System.Windows.Forms.Label lblLogicalSectorSize;
         private System.Windows.Forms.Label lblPhysicalSectorSize;
         private System.Windows.Forms.RadioButton radioButtonRandomico;
         private System.Windows.Forms.RadioButton radioButtonSequencial;
         private System.Windows.Forms.DataGridView dataGridViewHex;
+        private System.Windows.Forms.Label lblBufferSize;
+        private System.Windows.Forms.ComboBox comboBufferSize;
+        
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -37,7 +40,7 @@ namespace WinForms
         /// </summary>
         private void InitializeComponent()
         {
-            txtDiskPath = new TextBox();
+            comboDiskPath = new ComboBox();
             btnReadInfo = new Button();
             lblLogicalSectorSize = new Label();
             lblPhysicalSectorSize = new Label();
@@ -49,16 +52,19 @@ namespace WinForms
             dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
+            lblBufferSize = new Label();
+            comboBufferSize = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dataGridViewHex).BeginInit();
             SuspendLayout();
             // 
-            // txtDiskPath
+            // comboDiskPath
             // 
-            txtDiskPath.Location = new Point(30, 30);
-            txtDiskPath.Name = "txtDiskPath";
-            txtDiskPath.Size = new Size(200, 23);
-            txtDiskPath.TabIndex = 0;
-            txtDiskPath.Text = "\\\\.\\E:";
+            comboDiskPath.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDiskPath.Location = new Point(31, 30);
+            comboDiskPath.Margin = new Padding(3, 2, 3, 2);
+            comboDiskPath.Name = "comboDiskPath";
+            comboDiskPath.Size = new Size(154, 23);
+            comboDiskPath.TabIndex = 0;
             // 
             // btnReadInfo
             // 
@@ -101,6 +107,7 @@ namespace WinForms
             radioButtonSequencial.Location = new Point(373, 58);
             radioButtonSequencial.Name = "radioButtonSequencial";
             radioButtonSequencial.Size = new Size(104, 24);
+            radioButtonSequencial.Checked = true;
             radioButtonSequencial.TabIndex = 5;
             radioButtonSequencial.Text = "Sequencial";
             // 
@@ -128,47 +135,75 @@ namespace WinForms
             // 
             dataGridViewHex.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewHex.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3 });
-            dataGridViewHex.Location = new Point(31, 129);
+            dataGridViewHex.Location = new Point(30, 135);
             dataGridViewHex.Name = "dataGridViewHex";
+            dataGridViewHex.RowHeadersWidth = 51;
             dataGridViewHex.Size = new Size(623, 250);
             dataGridViewHex.TabIndex = 10;
             // 
             // dataGridViewTextBoxColumn1
             // 
             dataGridViewTextBoxColumn1.HeaderText = "offset";
+            dataGridViewTextBoxColumn1.MinimumWidth = 6;
             dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            dataGridViewTextBoxColumn1.Width = 125;
             // 
             // dataGridViewTextBoxColumn2
             // 
             dataGridViewTextBoxColumn2.HeaderText = "Hex";
+            dataGridViewTextBoxColumn2.MinimumWidth = 6;
             dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             dataGridViewTextBoxColumn2.Width = 300;
             // 
             // dataGridViewTextBoxColumn3
             // 
             dataGridViewTextBoxColumn3.HeaderText = "Ascii";
+            dataGridViewTextBoxColumn3.MinimumWidth = 6;
             dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             dataGridViewTextBoxColumn3.Width = 150;
+            // 
+            // lblBufferSize
+            // 
+            lblBufferSize.Location = new Point(30, 111);
+            lblBufferSize.Name = "lblBufferSize";
+            lblBufferSize.Size = new Size(175, 15);
+            lblBufferSize.TabIndex = 11;
+            lblBufferSize.Text = "Tamanho do Buffer -";
+            lblBufferSize.Click += lblBufferSize_Click;
+            // 
+            // comboBufferSize
+            // 
+            comboBufferSize.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBufferSize.Items.AddRange(new object[] { 128, 256, 512, 1024, 2048});
+            comboBufferSize.SelectedIndex = 0;
+            comboBufferSize.Location = new Point(163, 109);
+            comboBufferSize.Margin = new Padding(3, 2, 3, 2);
+            comboBufferSize.Name = "comboBufferSize";
+            comboBufferSize.Size = new Size(53, 23);
+            comboBufferSize.TabIndex = 0;
             // 
             // Principal
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(695, 400);
+            Controls.Add(comboBufferSize);
             Controls.Add(dataGridViewHex);
             Controls.Add(button2);
             Controls.Add(button1);
-            Controls.Add(txtDiskPath);
+            Controls.Add(comboDiskPath);
             Controls.Add(btnReadInfo);
             Controls.Add(lblLogicalSectorSize);
             Controls.Add(lblPhysicalSectorSize);
             Controls.Add(radioButtonRandomico);
             Controls.Add(radioButtonSequencial);
+            Controls.Add(lblBufferSize);
             Name = "Principal";
             Text = "Informações do Disco";
             ((System.ComponentModel.ISupportInitialize)dataGridViewHex).EndInit();
             ResumeLayout(false);
             PerformLayout();
+
         }
 
         #endregion
@@ -178,6 +213,5 @@ namespace WinForms
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
