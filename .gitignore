@@ -37,8 +37,6 @@ packages/
 **/packages/*
 
 # Exclude files built by Visual Studio
-*.dll
-*.exe
 *.app
 *.log
 
