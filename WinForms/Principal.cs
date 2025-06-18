@@ -40,11 +40,14 @@ namespace WinForms
             if (qtdSetores == -1)
                 return;
 
+            int bufferSize = (int)comboBufferSize.SelectedItem;
+            int rodaMaxima = bufferSize * 1024; // por exemplo
+
             for (int i = 0; i < qtdSetores; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, qtdSetores, cancellationToken);
+                var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, qtdSetores, cancellationToken, rodaMaxima);
 
                 int counter = 0;
 
@@ -56,8 +59,8 @@ namespace WinForms
                         setor.Key.ToString("X10"),
                         BitConverter.ToString(setor.Value).Replace("-", " "),
                         Encoding.ASCII.GetString(setor.Value).Replace("\0", ".")
-                    ); 
-                    
+                    );
+
                     if (counter % 10 == 0)
                         Application.DoEvents();
 
@@ -89,12 +92,15 @@ namespace WinForms
             if (qtdSetores == -1)
                 return;
 
+            int bufferSize = (int)comboBufferSize.SelectedItem;
+            int setoresPorPagina = bufferSize * 1024; // cada "unidade" = 1KB
+
             for (int i = 0; i < qtdSetores; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
+                
                 int counter = 0;
-                var setores = await diskService.GetSetoresPaginadosAsync(diskPath, i, 10000);
+                var setores = await diskService.GetSetoresPaginadosAsync(diskPath, i, setoresPorPagina);
                 foreach (var setor in setores)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -147,6 +153,11 @@ namespace WinForms
         private void ButtonCancelar(object sender, EventArgs e)
         {
             _cts?.Cancel();
+        }
+
+        private void lblBufferSize_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

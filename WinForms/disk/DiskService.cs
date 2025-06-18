@@ -41,7 +41,7 @@
         /// <param name="indices">Lista de índices de setores a serem lidos.</param>
         /// <returns>Lista de arrays de bytes, cada um representando um setor lido aleatoriamente.</returns>
         /// <exception cref="IOException">Lançada se houver erro na leitura do disco.</exception>
-        public async Task<Dictionary<long, byte[]>> GetSetoresRandomizadosAsync(string diskPath, long qtdMaxSetores, CancellationToken cancellationToken, int rodaMaxima = 1000)
+        public async Task<Dictionary<long, byte[]>> GetSetoresRandomizadosAsync(string diskPath, long qtdMaxSetores, CancellationToken cancellationToken, int rodaMaxima)
         {
             var (path, logicalSectorSize, _) = DiskReader.GetDiskGeometryInfo(diskPath);
             var setores = new Dictionary<long, byte[]>();
