@@ -12,11 +12,27 @@ namespace WinForms
         public Principal()
         {
             InitializeComponent();
+            ReadDriveConnection();
+        }
+
+        private void ReadDriveConnection()
+        {
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                if (drive.DriveType == DriveType.Fixed || drive.DriveType == DriveType.Removable)
+                {
+                    comboDiskPath.Items.Add(drive.Name);
+                }
+            }
+
+            if (comboDiskPath.Items.Count > 0)
+                comboDiskPath.SelectedIndex = 0; // Seleciona o primeiro drive por padrão
         }
 
         private void BtnReadInfo(object sender, EventArgs e)
         {
-            string diskPath = txtDiskPath.Text;
+            string? selected = comboDiskPath.SelectedItem as string;
+            string diskPath = $@"\\.\{selected.Substring(0,2)}";
             try
             {
                 var info = DiskReader.GetDiskGeometryInfo(@diskPath);
@@ -134,7 +150,8 @@ namespace WinForms
 
         private async void ButtonStartProcess(object sender, EventArgs e)
         {
-            string diskPath = txtDiskPath.Text;
+            string? selected = comboDiskPath.SelectedItem as string;
+            string diskPath = $@"\\.\{selected.Substring(0,2)}";
             _cts = new CancellationTokenSource();
 
             try
