@@ -1,26 +1,20 @@
-using Core;
+using System.Text;
 using System.Text.RegularExpressions;
 using WinForms.cores;
+using System.Threading;
 
 namespace WinForms
 {
     public partial class Principal : Form
     {
+        private CancellationTokenSource _cts;
+
         public Principal()
         {
             InitializeComponent();
-
-            // CheckBox para ocultar a leitura dos setores
-            this.chkOcultarLeitura = new System.Windows.Forms.CheckBox();
-            this.chkOcultarLeitura.AutoSize = true;
-            this.chkOcultarLeitura.Location = new System.Drawing.Point(20, 370); // ajuste conforme necessário
-            this.chkOcultarLeitura.Name = "chkOcultarLeitura";
-            this.chkOcultarLeitura.Size = new System.Drawing.Size(220, 19);
-            this.chkOcultarLeitura.Text = "Não mostrar a leitura dos setores";
-            this.Controls.Add(this.chkOcultarLeitura);
         }
 
-        private async void btnReadInfo_Click(object sender, EventArgs e)
+        private void BtnReadInfo(object sender, EventArgs e)
         {
             string diskPath = txtDiskPath.Text;
             try
@@ -29,16 +23,7 @@ namespace WinForms
                 lblLogicalSectorSize.Text = $"LogicalSectorSize: {info.LogicalSectorSize}";
                 lblPhysicalSectorSize.Text = $"PhysicalSectorSize: {info.PhysicalSectorSize}";
 
-                // Verifica se a opção "Randômico" está selecionada
-                if (radioButtonRandomico.Checked == true)
-                {
-                    await LerSetoresRandomicosAsync(diskPath);
-                }
-                else
-                {
-                    // Lê setores de forma sequencial (pode ser implementado se necessário)
-                    await LerSetoresPaginadoAsync(diskPath);
-                }
+                Application.DoEvents();
             }
             catch (Exception ex)
             {
@@ -46,83 +31,122 @@ namespace WinForms
             }
         }
 
-        private async Task LerSetoresRandomicosAsync(string diskPath)
+        private async Task LerSetoresRandomicosAsync(string diskPath, CancellationToken cancellationToken)
         {
             var diskService = new DiskService();
-            txtSaida.Clear();
-            int totalSetores = 0;
-            lblSetoresProcessados.Text = "Setores processados: 0";
 
             var qtdSetores = GetTotalSetores(diskPath);
 
+            if (qtdSetores == -1)
+                return;
+
             for (int i = 0; i < qtdSetores; i++)
             {
-                var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, qtdSetores);
-                if (!chkOcultarLeitura.Checked)
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var setores = await diskService.GetSetoresRandomizadosAsync(diskPath, qtdSetores, cancellationToken);
+
+                int counter = 0;
+
+                foreach (var setor in setores)
                 {
-                    txtSaida.AppendText($"Setor aleatório, rodada {i}: {BitConverter.ToString(setores.First())}{Environment.NewLine}");
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    AdicionarLinhaHex(
+                        setor.Key.ToString("X10"),
+                        BitConverter.ToString(setor.Value).Replace("-", " "),
+                        Encoding.ASCII.GetString(setor.Value).Replace("\0", ".")
+                    ); 
+                    
+                    if (counter % 10 == 0)
+                        Application.DoEvents();
+
+                    counter++;
                 }
-                totalSetores++;
-                lblSetoresProcessados.Text = $"Setores processados: {totalSetores}";
+            }
+        }
+
+        private long GetTotalSetores(String diskPath)
+        {
+            try
+            {
+                var drive = new DriveInfo(Regex.Replace(diskPath, "[^a-zA-Z]", ""));
+
+                return drive.TotalSize / 512;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao ler informações do disco: " + ex.Message);
+                return -1;
+            }
+        }
+
+        private async Task LerSetoresPaginadoAsync(string diskPath, CancellationToken cancellationToken)
+        {
+            var diskService = new DiskService();
+            var qtdSetores = GetTotalSetores(diskPath);
+
+            if (qtdSetores == -1)
+                return;
+
+            for (int i = 0; i < qtdSetores; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                int counter = 0;
+                var setores = await diskService.GetSetoresPaginadosAsync(diskPath, i, 10000);
+                foreach (var setor in setores)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    AdicionarLinhaHex(
+                        setor.Key.ToString("X10"),
+                        BitConverter.ToString(setor.Value).Replace("-", " "),
+                        Encoding.ASCII.GetString(setor.Value).Replace("\0", ".")
+                    );
+
+                    if (counter % 10 == 0)
+                        Application.DoEvents();
+
+                    counter++;
+                }
+                if (setores.Count == 0)
+                    break;
+
                 Application.DoEvents();
             }
         }
 
-
-        private long GetTotalSetores(String diskPath)
+        private void AdicionarLinhaHex(string offset, string hex, string ascii)
         {
-            var drive = new DriveInfo(Regex.Replace(diskPath, "[^a-zA-Z]", ""));
-
-            return drive.TotalSize / 512;
+            if (dataGridViewHex.Rows.Count >= 500)
+            {
+                dataGridViewHex.Rows.Clear();
+            }
+            dataGridViewHex.Rows.Add(offset, hex, ascii);
         }
 
-        private async Task LerSetoresPaginadoAsync(string diskPath)
+        private async void ButtonStartProcess(object sender, EventArgs e)
         {
-            var diskService = new DiskService();
-            txtSaida.Clear();
-            int count = 0;
-            lblSetoresProcessados.Text = "Setores processados: 0";
+            string diskPath = txtDiskPath.Text;
+            _cts = new CancellationTokenSource();
 
-            for (int i = 0; i < 1000; i++)
+            try
             {
-                var setores = await diskService.GetSetoresPaginadosAsync(diskPath, i, 100000);
-                if (setores.Count == 0)
-                    break;
-                if (!chkOcultarLeitura.Checked)
-                {
-                    count += setores.Count;
-                    txtSaida.AppendText($"Página {i}: {setores.Count} setores lidos.{Environment.NewLine}");
-                    lblSetoresProcessados.Text = $"Setores processados: {count}";
-                }
+                if (radioButtonRandomico.Checked == true)
+                    await LerSetoresRandomicosAsync(diskPath, _cts.Token);
                 else
-                {
-                    for (int j = 0; j < setores.Count; j++)
-                    {
-                        if (!chkOcultarLeitura.Checked)
-                        {
-                            txtSaida.AppendText($"Setor {count}: {BitConverter.ToString(setores[j])}{Environment.NewLine}");
-                        }
-                        count++;
-                        lblSetoresProcessados.Text = $"Setores processados: {count}";
-                        Application.DoEvents(); // Atualiza a interface
-                    }
-                }
+                    await LerSetoresPaginadoAsync(diskPath, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("Leitura cancelada pelo usuário.");
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ButtonCancelar(object sender, EventArgs e)
         {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void chkOcultarLeitura_CheckedChanged(object sender, EventArgs e)
-        {
-
+            _cts?.Cancel();
         }
     }
 }

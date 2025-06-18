@@ -10,10 +10,10 @@
         /// <param name="tamanhoPagina">Quantidade de setores por página.</param>
         /// <returns>Lista de arrays de bytes, cada um representando um setor.</returns>
         /// <exception cref="IOException">Lançada se houver erro na leitura do disco.</exception>
-        public async Task<List<byte[]>> GetSetoresPaginadosAsync(string diskPath, int pagina, int tamanhoPagina)
+        public async Task<Dictionary<long, byte[]>> GetSetoresPaginadosAsync(string diskPath, int pagina, int tamanhoPagina)
         {
             var (path, logicalSectorSize, _) = DiskReader.GetDiskGeometryInfo(diskPath);
-            var setores = new List<byte[]>(tamanhoPagina);
+            var setores = new Dictionary<long, byte[]>();
 
             using var stream = DiskReader.OpenPhysicalDisk(diskPath);
 
@@ -24,11 +24,11 @@
             for (int i = 0; i < tamanhoPagina; i++)
             {
                 int lidos = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (lidos == 0) break; // Fim do disco
-                // Cria uma cópia do buffer para evitar sobrescrita
+                if (lidos == 0) break;
+
                 var setor = new byte[lidos];
                 Array.Copy(buffer, setor, lidos);
-                setores.Add(setor);
+                setores.Add(offset+i, setor);
             }
 
             return setores;
@@ -41,10 +41,10 @@
         /// <param name="indices">Lista de índices de setores a serem lidos.</param>
         /// <returns>Lista de arrays de bytes, cada um representando um setor lido aleatoriamente.</returns>
         /// <exception cref="IOException">Lançada se houver erro na leitura do disco.</exception>
-        public async Task<List<byte[]>> GetSetoresRandomizadosAsync(string diskPath, long qtdMaxSetores, int rodaMaxima = 1000)
+        public async Task<Dictionary<long, byte[]>> GetSetoresRandomizadosAsync(string diskPath, long qtdMaxSetores, CancellationToken cancellationToken, int rodaMaxima = 1000)
         {
             var (path, logicalSectorSize, _) = DiskReader.GetDiskGeometryInfo(diskPath);
-            var setores = new List<byte[]>();
+            var setores = new Dictionary<long, byte[]>();
 
             using var stream = DiskReader.OpenPhysicalDisk(diskPath);
             var buffer = new byte[logicalSectorSize];
@@ -53,6 +53,7 @@
 
             for (int i = 0; i < rodaMaxima; i ++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 long offset = LongRandom(0, qtdMaxSetores, random) * logicalSectorSize;
                 stream.Seek(offset, SeekOrigin.Begin);
 
@@ -61,7 +62,7 @@
 
                 var setor = new byte[lidos];
                 Array.Copy(buffer, setor, lidos);
-                setores.Add(setor);
+                setores.Add(offset + i, setor);
             }
 
             return setores;
@@ -97,8 +98,8 @@
             for (int i = 0; i < tamanhoPagina; i++)
             {
                 int lidos = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (lidos == 0) break; // Fim do disco
-                // Cria uma cópia do buffer para evitar sobrescrita
+                if (lidos == 0) break; 
+
                 var setor = new byte[lidos];
                 Array.Copy(buffer, setor, lidos);
                 setores.Add(setor);
@@ -129,7 +130,7 @@
                 stream.Seek(offset, SeekOrigin.Begin);
 
                 int lidos = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (lidos == 0) break; // Fim do disco
+                if (lidos == 0) break; 
 
                 var setor = new byte[lidos];
                 Array.Copy(buffer, setor, lidos);

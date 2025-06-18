@@ -1,4 +1,6 @@
-﻿namespace WinForms
+﻿using System.Windows.Forms;
+
+namespace WinForms
 {
     partial class Principal
     {
@@ -12,8 +14,7 @@
         private System.Windows.Forms.Label lblPhysicalSectorSize;
         private System.Windows.Forms.RadioButton radioButtonRandomico;
         private System.Windows.Forms.RadioButton radioButtonSequencial;
-        private System.Windows.Forms.TextBox txtSaida;
-        private System.Windows.Forms.CheckBox chkOcultarLeitura;
+        private System.Windows.Forms.DataGridView dataGridViewHex;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -42,10 +43,13 @@
             lblPhysicalSectorSize = new Label();
             radioButtonRandomico = new RadioButton();
             radioButtonSequencial = new RadioButton();
-            txtSaida = new TextBox();
-            chkOcultarLeitura = new CheckBox();
             button1 = new Button();
             button2 = new Button();
+            dataGridViewHex = new DataGridView();
+            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewHex).BeginInit();
             SuspendLayout();
             // 
             // txtDiskPath
@@ -64,7 +68,7 @@
             btnReadInfo.TabIndex = 1;
             btnReadInfo.Text = "Ler Info";
             btnReadInfo.UseVisualStyleBackColor = true;
-            btnReadInfo.Click += btnReadInfo_Click;
+            btnReadInfo.Click += BtnReadInfo;
             // 
             // lblLogicalSectorSize
             // 
@@ -100,25 +104,6 @@
             radioButtonSequencial.TabIndex = 5;
             radioButtonSequencial.Text = "Sequencial";
             // 
-            // txtSaida
-            // 
-            txtSaida.Location = new Point(30, 118);
-            txtSaida.Multiline = true;
-            txtSaida.Name = "txtSaida";
-            txtSaida.ScrollBars = ScrollBars.Vertical;
-            txtSaida.Size = new Size(500, 200);
-            txtSaida.TabIndex = 6;
-            // 
-            // chkOcultarLeitura
-            // 
-            chkOcultarLeitura.AutoSize = true;
-            chkOcultarLeitura.Location = new Point(30, 358);
-            chkOcultarLeitura.Name = "chkOcultarLeitura";
-            chkOcultarLeitura.Size = new Size(199, 19);
-            chkOcultarLeitura.TabIndex = 0;
-            chkOcultarLeitura.Text = "Não mostrar a leitura dos setores";
-            chkOcultarLeitura.CheckedChanged += chkOcultarLeitura_CheckedChanged;
-            // 
             // button1
             // 
             button1.Location = new Point(250, 59);
@@ -127,7 +112,7 @@
             button1.TabIndex = 8;
             button1.Text = "Start Process";
             button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            button1.Click += ButtonStartProcess;
             // 
             // button2
             // 
@@ -137,25 +122,51 @@
             button2.TabIndex = 9;
             button2.Text = "Cancelar Processo";
             button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
+            button2.Click += ButtonCancelar;
             // 
-            // Form1
+            // dataGridViewHex
+            // 
+            dataGridViewHex.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewHex.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3 });
+            dataGridViewHex.Location = new Point(31, 129);
+            dataGridViewHex.Name = "dataGridViewHex";
+            dataGridViewHex.Size = new Size(623, 250);
+            dataGridViewHex.TabIndex = 10;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            dataGridViewTextBoxColumn1.HeaderText = "offset";
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            dataGridViewTextBoxColumn2.HeaderText = "Hex";
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            dataGridViewTextBoxColumn2.Width = 300;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            dataGridViewTextBoxColumn3.HeaderText = "Ascii";
+            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            dataGridViewTextBoxColumn3.Width = 150;
+            // 
+            // Principal
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 400);
+            ClientSize = new Size(695, 400);
+            Controls.Add(dataGridViewHex);
             Controls.Add(button2);
             Controls.Add(button1);
-            Controls.Add(chkOcultarLeitura);
             Controls.Add(txtDiskPath);
             Controls.Add(btnReadInfo);
             Controls.Add(lblLogicalSectorSize);
             Controls.Add(lblPhysicalSectorSize);
             Controls.Add(radioButtonRandomico);
             Controls.Add(radioButtonSequencial);
-            Controls.Add(txtSaida);
-            Name = "Form1";
+            Name = "Principal";
             Text = "Informações do Disco";
+            ((System.ComponentModel.ISupportInitialize)dataGridViewHex).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -164,5 +175,9 @@
 
         private Button button1;
         private Button button2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
